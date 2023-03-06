@@ -8,41 +8,29 @@ from sklearn.metrics import mean_squared_error
 from utils import load_dataset, preprocess
 
 
-def train_model(file, visualize=False):
-    data = load_dataset(file)
-
-    # Preprocess Dataframe
-    data = preprocess(data, for_visuals=False)
-
+def train_model(train_data):
     # Rename columns for NeuralProphet model
-    data.rename(columns={'date': 'ds', 'value': 'y'}, inplace=True)
-
-    print(data.head())
-
-    # Training data only for JAHR < 2020
-    train_data = data[data["ds"] <= '2019-12-01']
-    test_data = data[data["ds"] > '2019-12-01']
-
-    print(f"Train dates : {train_data.index.min()} --- {train_data.index.max()}  (n={len(train_data)})")
-    print(f"Test dates  : {test_data.index.min()} --- {test_data.index.max()}  (n={len(test_data)})")
-
-    if visualize:
-        fig, ax = plt.subplots(figsize=(9, 4))
-        train_data["y"].plot(ax=ax, label='train')
-        test_data["y"].plot(ax=ax, label='test')
-        ax.legend()
-        plt.show()
+    train_data.rename(columns={'date': 'ds', 'value': 'y'}, inplace=True)
 
     # Fit Autoregression model for forecasting
     model = NeuralProphet()
-    metrics = model.fit(train_data, freq='M', validation_df=test_data)
 
-    return model, train_data, test_data, metrics
+    df_train, df_val = model.split_df(train_data, freq='M', valid_p=0.1)
+
+    #metrics = model.fit(df_train, freq='M', validation_df=df_val)
+    model.fit(df_train, freq='M')
+
+    return model
 
 
 def make_prediction(model, train_data, test_data, steps=24):
-    future = model.make_future_dataframe(train_data, periods=steps, n_historic_predictions=len(train_data))
-    predictions = model.predict(future)
+    train_data.rename(columns={'date': 'ds', 'value': 'y'}, inplace=True)
+    test_data.rename(columns={'date': 'ds', 'value': 'y'}, inplace=True)
+
+    future = model.make_future_dataframe(train_data, periods=steps)
+    # , n_historic_predictions=len(train_data)
+
+    predictions = model.predict(future, decompose=False)
 
     fig, ax = plt.subplots(figsize=(9, 4))
     train_data['y'].plot(ax=ax, label='train')

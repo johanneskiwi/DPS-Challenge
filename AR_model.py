@@ -8,44 +8,20 @@ from sklearn.metrics import mean_squared_error
 from skforecast.ForecasterAutoreg import ForecasterAutoreg
 from skforecast.model_selection import grid_search_forecaster
 
-from utils import load_dataset, preprocess
 
-
-def train_model(file, visualize=False):
-    data = load_dataset(file)
-
-    # Preprocess Dataframe
-    data = preprocess(data, for_visuals=False)
-
-    print(data.head())
-
-    # Training data only for JAHR < 2020
-    train_data = data[data["date"] <= '2019-12-01']
-    test_data = data[data["date"] > '2019-12-01']
-
-    print(f"Train dates : {train_data.index.min()} --- {train_data.index.max()}  (n={len(train_data)})")
-    print(f"Test dates  : {test_data.index.min()} --- {test_data.index.max()}  (n={len(test_data)})")
-
-    if visualize:
-        fig, ax = plt.subplots(figsize=(9, 4))
-        train_data["value"].plot(ax=ax, label='train')
-        test_data["value"].plot(ax=ax, label='test')
-        ax.legend()
-        plt.show()
-
+def train_model(train_data):
     # Fit Autoregression model for forecasting
-    forecaster = ForecasterAutoreg(
+    model = ForecasterAutoreg(
         regressor=RandomForestRegressor(max_depth=7, n_estimators=100, random_state=123),
         lags=30
     )
 
-    forecaster.fit(y=train_data['value'])
+    model.fit(y=train_data['value'])
 
-    return forecaster, train_data, test_data
+    return model
 
 
-def make_prediction(model, train_data, test_data):
-    steps = 24
+def make_prediction(model, train_data, test_data, steps=24):
     predictions = model.predict(steps=steps)
 
     fig, ax = plt.subplots(figsize=(9, 4))
@@ -94,10 +70,4 @@ def hyperparameter_tuning(train_data, steps=12):
 
     print(results_grid)
 
-
-if __name__ == "__main__":
-    forecaster, train_data, test_data = train_model("data.csv")
-
-    #hyperparameter_tuning(train_data)
-    make_prediction(forecaster, train_data, test_data)
 

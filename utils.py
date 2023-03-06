@@ -1,4 +1,9 @@
+import os
+import pickle
+
 import pandas as pd
+
+from matplotlib import pyplot as plt
 
 
 def load_dataset(file):
@@ -9,6 +14,24 @@ def load_dataset(file):
     df = data.iloc[:, : 5]
 
     return df
+
+
+def create_train_test_set(data, visualize=False):
+    # Training data only for JAHR < 2020
+    train_data = data[data["ds"] <= '2019-12-01']
+    test_data = data[data["ds"] > '2019-12-01']
+
+    print(f"Train dates : {train_data.index.min()} --- {train_data.index.max()}  (n={len(train_data)})")
+    print(f"Test dates  : {test_data.index.min()} --- {test_data.index.max()}  (n={len(test_data)})")
+
+    if visualize:
+        fig, ax = plt.subplots(figsize=(9, 4))
+        train_data["y"].plot(ax=ax, label='train')
+        test_data["y"].plot(ax=ax, label='test')
+        ax.legend()
+        plt.show()
+
+    return train_data, test_data
 
 
 def preprocess(df, horizon=2021, for_visuals=False):
@@ -22,10 +45,10 @@ def preprocess(df, horizon=2021, for_visuals=False):
     df = df.drop(df[df.JAHR > horizon].index)
 
     # Rename columns
-    df = df.rename(columns={'MONAT': 'date'})
-    df = df.rename(columns={'WERT': 'value'})
+    df = df.rename(columns={'MONAT': 'ds'})
+    df = df.rename(columns={'WERT': 'y'})
 
-    df['date'] = pd.to_datetime(df['date'], format='%Y%m')
+    df['ds'] = pd.to_datetime(df['ds'], format='%Y%m')
 
     # Drop columns
     if for_visuals:
@@ -39,7 +62,7 @@ def preprocess(df, horizon=2021, for_visuals=False):
         df = df.drop(["MONATSZAHL", "AUSPRÄGUNG", "JAHR"], axis=1)
 
         # Change type of "date" column to datetime
-        df['date'] = pd.to_datetime(df['date'], format='%Y%m')
+        df['ds'] = pd.to_datetime(df['ds'], format='%Y%m')
 
         df = sort_data(df)
 
@@ -50,7 +73,27 @@ def preprocess(df, horizon=2021, for_visuals=False):
 
 
 def sort_data(df):
-    df = df.set_index('date', drop=False)
+    df = df.set_index('ds', drop=False)
     df = df.asfreq('MS')
     df = df.sort_index()
     return df
+
+
+def save_model(filename, model):
+    filepath = os.path.join("saved_models", filename + ".pkl")
+    with open(filepath, "wb") as f:
+        pickle.dump(model, f)
+
+    print(f"Model saved at path: {filepath}")
+
+
+def load_model(filename):
+    filepath = os.path.join("saved_models", filename + ".pkl")
+    with open(filepath, "rb") as f:
+        model = pickle.load(f)
+
+    print(f"Load Model from path: {filepath}")
+    return model
+
+
+
