@@ -33,10 +33,10 @@ def preprocess(df, horizon=2021, for_visuals=False):
         df = df.rename(columns={'MONATSZAHL': 'category'})
 
     else:
-        df = df.drop(["MONATSZAHL", "AUSPRÄGUNG", "JAHR"], axis=1)
-
         # Drop all rows that do not belong to category "Alkoholunfälle"
         df = df.drop(df[df.MONATSZAHL != "Alkoholunfälle"].index)
+
+        df = df.drop(["MONATSZAHL", "AUSPRÄGUNG", "JAHR"], axis=1)
 
         # Change type of "date" column to datetime
         df['date'] = pd.to_datetime(df['date'], format='%Y%m')

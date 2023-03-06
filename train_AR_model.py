@@ -15,13 +15,13 @@ def train_model(file, visualize=False):
     data = load_dataset(file)
 
     # Preprocess Dataframe
-    data = preprocess(data)
+    data = preprocess(data, for_visuals=False)
 
     print(data.head())
 
     # Training data only for JAHR < 2020
-    train_data = data[data["date"] <= '2020-12-01']
-    test_data = data[data["date"] > '2020-12-01']
+    train_data = data[data["date"] <= '2019-12-01']
+    test_data = data[data["date"] > '2019-12-01']
 
     print(f"Train dates : {train_data.index.min()} --- {train_data.index.max()}  (n={len(train_data)})")
     print(f"Test dates  : {test_data.index.min()} --- {test_data.index.max()}  (n={len(test_data)})")
@@ -36,7 +36,7 @@ def train_model(file, visualize=False):
     # Fit Autoregression model for forecasting
     forecaster = ForecasterAutoreg(
         regressor=RandomForestRegressor(max_depth=7, n_estimators=100, random_state=123),
-        lags=50
+        lags=30
     )
 
     forecaster.fit(y=train_data['value'])
@@ -45,18 +45,18 @@ def train_model(file, visualize=False):
 
 
 def make_prediction(model, train_data, test_data):
-    steps = 12
+    steps = 24
     predictions = model.predict(steps=steps)
 
     fig, ax = plt.subplots(figsize=(9, 4))
     train_data['value'].plot(ax=ax, label='train')
-    test_data['value'].plot(ax=ax, label='test')
+    test_data['value'][:steps].plot(ax=ax, label='test')
     predictions.plot(ax=ax, label='predictions')
     ax.legend()
     plt.show()
 
     error_mse = mean_squared_error(
-        y_true=test_data['value'],
+        y_true=test_data['value'][:steps],
         y_pred=predictions
     )
 
@@ -67,16 +67,16 @@ def hyperparameter_tuning(train_data, steps=12):
     # Hyperparameter Grid search
     # ==============================================================================
     model = ForecasterAutoreg(
-        regressor=RandomForestRegressor(random_state=42),
-        lags=12
+        regressor=RandomForestRegressor(random_state=123),
+        lags=30
     )
 
     # Lags used as predictors
-    lags_grid = [5, 25]
+    lags_grid = [20, 50]
 
     # Regressor's hyperparameters
-    param_grid = {'n_estimators': [100, 500],
-                  'max_depth': [3, 5, 7, 10]}
+    param_grid = {'n_estimators': [100, 250, 500],
+                  'max_depth': [7, 10, 15, 20, 40]}
 
     results_grid = grid_search_forecaster(
         forecaster=model,
@@ -96,7 +96,6 @@ def hyperparameter_tuning(train_data, steps=12):
 
 
 if __name__ == "__main__":
-
     forecaster, train_data, test_data = train_model("data.csv")
 
     #hyperparameter_tuning(train_data)
