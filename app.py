@@ -1,6 +1,6 @@
 # Serve model as a flask application
 import pickle
-from flask import Flask, request
+from flask import Flask, request, jsonify
 
 model = None
 train_data = None
@@ -33,8 +33,8 @@ def get_prediction():
 
     if request.method == 'POST':
         usr_inp = request.get_json()
-        year = int(str(usr_inp)[:4])
-        month = int(str(usr_inp)[4:])
+        year = usr_inp["year"]
+        month = usr_inp["month"]
 
         # Make prediction
         predictions = model.forecast(iInputDS=train_data, iHorizon=24)
@@ -42,15 +42,11 @@ def get_prediction():
         predictions = predictions.set_index('ds', drop=False)
         y_pred = predictions["y_Forecast"][t_len:t_len + 24]
 
-        # Return predicted value
-        date = str(year) + '-' + str(month) + '-01'
+        # Get predicted value
+        date = year + '-' + month + '-01'
         predicted_value = int(y_pred.loc[date])
 
-        out = {
-                "prediction": predicted_value
-              }
-
-    return out
+    return jsonify(prediction=predicted_value)
 
 
 if __name__ == '__main__':
