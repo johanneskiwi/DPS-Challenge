@@ -8,11 +8,12 @@ MODEL_NAME = "pyaf_model"
 TRAIN_MODEL = False
 MAKE_PREDICTION = True
 
-PLOT_INPUT_DATA = False
+PLOT_INPUT_DATA = True
 PLOT_PREDICTION = True
+SAVE_PLOT = True
 
 pred_year = "2021"
-pred_month = "03"
+pred_month = "05"
 
 if __name__ == "__main__":
     """Load dataset:"""
@@ -20,7 +21,7 @@ if __name__ == "__main__":
 
     """Visualize input data"""
     if PLOT_INPUT_DATA:
-        plot_input_data(dataset)
+        plot_input_data(dataset, save_plot=SAVE_PLOT)
 
     """Preprocess Dataframe"""
     data = preprocess(data, for_visuals=False)
@@ -59,7 +60,7 @@ if __name__ == "__main__":
 
         """Plot train data with prediction data"""
         if PLOT_PREDICTION:
-            plot_predictions(train_data, test_data, y_pred, steps=24)
+            plot_predictions(train_data, test_data, y_pred, steps=24, save_plot=SAVE_PLOT)
 
         """Forecast single value for specific date => Output for APP"""
         app_output = return_pred_value(y_pred, pred_month, pred_year)

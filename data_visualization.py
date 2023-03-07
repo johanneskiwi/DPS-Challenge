@@ -1,12 +1,14 @@
-from matplotlib import pyplot as plt
+import os
 import pandas as pd
+
+from matplotlib import pyplot as plt
 
 from utils import load_dataset, preprocess, sort_data
 
 LINE_PLOT = True
 
 
-def plot_input_data(file):
+def plot_input_data(file, save_plot=False):
     """Creates plots for input data"""
 
     labels = ["Alkoholunfälle", "Fluchtunfälle", "Verkehrsunfälle"]
@@ -26,16 +28,20 @@ def plot_input_data(file):
     axs[1].plot(df_flucht["ds"], df_flucht["y"], color=colors[1])
     axs[2].plot(df_verkehr["ds"], df_verkehr["y"], color=colors[2])
 
-    for ax in axs:
+    for i, ax in enumerate(axs):
         ax.set_xlim(pd.Timestamp('2000-01-01'), pd.Timestamp('2020-12-01'))
         ax.grid()
-        ax.set_ylabel("Number of Accidents")
+        ax.set_ylabel("# Accidents")
 
     lines = [df_alk, df_flucht, df_verkehr]
-    fig1.legend(lines, labels=labels, loc="lower right")
+    fig1.legend(lines, labels=labels, loc="upper right")
 
     axs[2].set_xlabel("Date")
-    fig1.suptitle("Number of accidents per category", fontsize=14)
+    fig1.suptitle("Number of accidents\n per category", fontsize=14)
+
+    if save_plot:
+        plt.tight_layout()
+        plt.savefig(r'plots/InputDataSubplots.png', dpi=300)
 
     plt.figure()
     for l, c in zip(lines, colors):
@@ -44,24 +50,33 @@ def plot_input_data(file):
     plt.xlim(pd.Timestamp('2000-01-01'), pd.Timestamp('2020-12-01'))
     plt.grid()
     plt.xlabel("Date")
-    plt.ylabel("Number of Accidents")
+    plt.ylabel("# Accidents")
     plt.title("Number of accidents per category", fontsize=14)
     plt.legend(lines, labels=labels, loc="center right")
+
+    if save_plot:
+        plt.tight_layout()
+        plt.savefig(r'plots/InputDataComparison.png', dpi=300)
 
     plt.show()
 
 
-def plot_predictions(train_data, test_data, pred_data, steps=24):
+def plot_predictions(train_data, test_data, pred_data, steps=24, save_plot=False):
     """Plot prediction horizon compared with test data"""
 
-    fig, ax = plt.subplots(figsize=(9, 4))
+    fig, ax = plt.subplots()
     train_data['y'].plot(ax=ax, label='train')
     test_data['y'][:steps].plot(ax=ax, label='test')
     pred_data.plot(ax=ax, label='predictions')
 
     plt.xlabel("Date")
-    plt.ylabel("Number of Accidents")
-    plt.title("Training, Test and Prediction Data")
+    plt.ylabel("# Accidents")
+    plt.title("Training, Test and Prediction Data\n Category: 'Alkoholunfälle' \n Type: 'insgesamt'")
 
     ax.legend()
+
+    if save_plot:
+        plt.tight_layout()
+        plt.savefig(r'plots/predictions.png', dpi=300)
+
     plt.show()
