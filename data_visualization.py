@@ -71,7 +71,7 @@ def plot_predictions(train_data, test_data, pred_data, steps=24, save_plot=False
 
     plt.xlabel("Date")
     plt.ylabel("# Accidents")
-    plt.title("Training, Test and Prediction Data\n Category: 'Alkoholunfälle' \n Type: 'insgesamt'")
+    plt.title("Prediction results for pyaf model\n Category: 'Alkoholunfälle' \n Type: 'insgesamt'")
 
     ax.legend()
 

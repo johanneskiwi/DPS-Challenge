@@ -3,13 +3,20 @@ from prediction_models import AR_model, pyaf_model
 from utils import save_model, load_model, load_dataset, preprocess, create_train_test_set, return_pred_value
 from data_visualization import plot_input_data, plot_predictions
 
+"""
+    Pipeline to train a Model to forecast a given dataset
+    - Includes visualization script
+    - One can choose between two different models (Autoregression and PyAF)
+    
+"""
+
 dataset = r'data.csv'
-MODEL_NAME = "pyaf_model"
-TRAIN_MODEL = False
+MODEL_NAME = "pyaf_model"   # or "AR_Model"
+TRAIN_MODEL = True
 MAKE_PREDICTION = True
 
-PLOT_INPUT_DATA = True
-PLOT_PREDICTION = True
+PLOT_INPUT_DATA = False
+PLOT_PREDICTION = False
 SAVE_PLOT = True
 
 pred_year = "2021"
@@ -27,7 +34,7 @@ if __name__ == "__main__":
     data = preprocess(data, for_visuals=False)
 
     """Get Train/Test Data"""
-    train_data, test_data = create_train_test_set(data)
+    train_data, test_data = create_train_test_set(data, save_train_data=True)
 
     """Train model"""
     if TRAIN_MODEL:

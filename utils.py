@@ -1,9 +1,7 @@
 import os
 import pickle
 import pandas as pd
-
 from sklearn.metrics import mean_squared_error
-from matplotlib import pyplot as plt
 
 
 def load_dataset(file):
@@ -16,7 +14,7 @@ def load_dataset(file):
     return df
 
 
-def create_train_test_set(data, visualize=False):
+def create_train_test_set(data, save_train_data=False):
     """
         Creates a training and test dataset
         Training data timeframe: [2000, 2020]
@@ -29,12 +27,9 @@ def create_train_test_set(data, visualize=False):
     print(f"\nTrain dates : {train_data.index.min()} --- {train_data.index.max()}  (n={len(train_data)})")
     print(f"Test dates  : {test_data.index.min()} --- {test_data.index.max()}  (n={len(test_data)})\n")
 
-    if visualize:
-        fig, ax = plt.subplots(figsize=(9, 4))
-        train_data["y"].plot(ax=ax, label='train')
-        test_data["y"].plot(ax=ax, label='test')
-        ax.legend()
-        plt.show()
+    if save_train_data:
+        with open("pickle_files/train_data.pkl", "wb") as f:
+            pickle.dump(train_data, f)
 
     return train_data, test_data
 
@@ -88,7 +83,7 @@ def sort_data(df):
 def save_model(filename, model):
     """Saves trained model in pickle file"""
 
-    filepath = os.path.join("saved_models", filename + ".pkl")
+    filepath = os.path.join("pickle_files", filename + ".pkl")
     with open(filepath, "wb") as f:
         pickle.dump(model, f)
 
@@ -98,7 +93,7 @@ def save_model(filename, model):
 def load_model(filename):
     """Loads trained model from pickle file"""
 
-    filepath = os.path.join("saved_models", filename + ".pkl")
+    filepath = os.path.join("pickle_files", filename + ".pkl")
     with open(filepath, "rb") as f:
         model = pickle.load(f)
 
