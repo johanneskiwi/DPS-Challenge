@@ -1,22 +1,34 @@
 import AR_model
 import NP_model
 import pyaf_model
-from utils import save_model, load_model, load_dataset, preprocess, create_train_test_set
+from utils import save_model, load_model, load_dataset, preprocess, create_train_test_set, return_pred_value
+from data_visualization import plot_input_data, plot_predictions
 
-MODEL_NAME = "pyaf_model"
+dataset = r'data.csv'
+MODEL_NAME = "AR_model"
 TRAIN_MODEL = False
 MAKE_PREDICTION = True
 
+PLOT_INPUT_DATA = False
+PLOT_PREDICTION = True
+
+pred_year = "2021"
+pred_month = "03"
 
 if __name__ == "__main__":
     # Load dataset:
-    data = load_dataset("data.csv")
+    data = load_dataset(dataset)
+
+    if PLOT_INPUT_DATA:
+        plot_input_data(dataset)
 
     # Preprocess Dataframe
     data = preprocess(data, for_visuals=False)
 
     # Get Train/Test Data
     train_data, test_data = create_train_test_set(data)
+
+    # Visualize input data
 
     # Train model
     if TRAIN_MODEL:
@@ -41,15 +53,22 @@ if __name__ == "__main__":
 
         if MODEL_NAME == "AR_model":
             # Make prediction for AR model
-            AR_model.make_prediction(model, train_data, test_data)
+            y_pred = AR_model.make_prediction(model, test_data)
 
         elif MODEL_NAME == "NP_model":
             # Make prediction for NP model
             # TODO // Does not work yet => some weird error occuring
-            NP_model.make_prediction(model, train_data, test_data)
+            y_pred = NP_model.make_prediction(model, train_data, test_data)
 
         elif MODEL_NAME == "pyaf_model":
-            model = pyaf_model.make_prediction(model, train_data, test_data)
+            y_pred = pyaf_model.make_prediction(model, test_data, show_stats=True)
 
         else:
             raise NotImplementedError
+
+        # Plot train data with prediction data
+        if PLOT_PREDICTION:
+            plot_predictions(train_data, test_data, y_pred, steps=24)
+
+        # Forecast single value for specific date:
+        app_output = return_pred_value(y_pred, pred_month, pred_year)

@@ -6,7 +6,7 @@ from utils import load_dataset, preprocess, sort_data
 LINE_PLOT = True
 
 
-def plot_data(file):
+def plot_input_data(file):
     labels = ["Alkoholunfälle", "Fluchtunfälle", "Verkehrsunfälle"]
     colors = ["r", "g", "y"]
 
@@ -20,9 +20,9 @@ def plot_data(file):
     df_verkehr = sort_data(df[df["category"] == labels[2]])
 
     fig1, axs = plt.subplots(3)
-    axs[0].plot(df_alk["date"], df_alk["value"], color=colors[0])
-    axs[1].plot(df_flucht["date"], df_flucht["value"], color=colors[1])
-    axs[2].plot(df_verkehr["date"], df_verkehr["value"], color=colors[2])
+    axs[0].plot(df_alk["ds"], df_alk["y"], color=colors[0])
+    axs[1].plot(df_flucht["ds"], df_flucht["y"], color=colors[1])
+    axs[2].plot(df_verkehr["ds"], df_verkehr["y"], color=colors[2])
 
     for ax in axs:
         ax.set_xlim(pd.Timestamp('2000-01-01'), pd.Timestamp('2020-12-01'))
@@ -37,7 +37,7 @@ def plot_data(file):
 
     plt.figure()
     for l, c in zip(lines, colors):
-        plt.plot(l["date"], l["value"], color=c)
+        plt.plot(l["ds"], l["y"], color=c)
 
     plt.xlim(pd.Timestamp('2000-01-01'), pd.Timestamp('2020-12-01'))
     plt.grid()
@@ -49,5 +49,16 @@ def plot_data(file):
     plt.show()
 
 
-if __name__ == "__main__":
-    plot_data(r'data.csv')
+def plot_predictions(train_data, test_data, pred_data, steps=24):
+    # Plot prediction horizon compared with test data
+    fig, ax = plt.subplots(figsize=(9, 4))
+    train_data['y'].plot(ax=ax, label='train')
+    test_data['y'][:steps].plot(ax=ax, label='test')
+    pred_data.plot(ax=ax, label='predictions')
+
+    plt.xlabel("Date")
+    plt.ylabel("Number of Accidents")
+    plt.title("Training, Test and Prediction Data")
+
+    ax.legend()
+    plt.show()

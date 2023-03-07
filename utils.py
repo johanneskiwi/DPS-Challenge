@@ -1,8 +1,8 @@
 import os
 import pickle
-
 import pandas as pd
 
+from sklearn.metrics import mean_squared_error
 from matplotlib import pyplot as plt
 
 
@@ -96,4 +96,20 @@ def load_model(filename):
     return model
 
 
+def return_pred_value(y_pred, month, year):
+    # Predict single value given a specific date (year, month)
+    date = year + '-' + month + '-01'
+    predicted_value = int(y_pred.loc[date])
+
+    print(f"\nPredicted number of accidents in {year}-{month}: {predicted_value}\n")
+
+    return predicted_value
+
+
+def calc_mse(y, y_pred, steps=24):
+    error_mse = mean_squared_error(
+        y_true=y,
+        y_pred=y_pred
+    )
+    print(f"Test error (MSE) for prediction horizon of {steps} steps: {error_mse}")
 

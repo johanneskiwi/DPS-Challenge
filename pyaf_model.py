@@ -1,11 +1,10 @@
 import pyaf.ForecastEngine as autof
-from sklearn.metrics import mean_squared_error
 
-from matplotlib import pyplot as plt
+from utils import calc_mse
 
 
 def train_model(train_data):
-    # Fit Autoregression model for forecasting
+    # Fit PyAF model for forecasting
     train_data.index.name = 'date'
 
     model = autof.cForecastEngine()
@@ -14,28 +13,23 @@ def train_model(train_data):
     return model
 
 
-def make_prediction(model, train_data, test_data, steps=24):
+def make_prediction(model, train_data, test_data, steps=24, show_stats=False):
+    # Makes prediction for 24 months time horizon based on trained model
     predictions = model.forecast(train_data, steps)
 
-    fig, ax = plt.subplots(figsize=(9, 4))
-    train_data['y'].plot(ax=ax, label='train')
-    test_data['y'][:steps].plot(ax=ax, label='test')
-
     l = len(train_data['y'])
-
     predictions = predictions.set_index('ds', drop=False)
     y_pred = predictions["y_Forecast"][l:l+steps]
 
-    y_pred.plot(ax=ax, label='predictions')
+    if show_stats:
+        calc_mse(test_data['y'], y_pred)
 
-    ax.legend()
-    plt.show()
+    return y_pred
 
-    error_mse = mean_squared_error(
-        y_true=test_data['y'],
-        y_pred=y_pred
-    )
 
-    print(f"Test error (mse): {error_mse}")
+
+
+
+
 
 

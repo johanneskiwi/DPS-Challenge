@@ -5,8 +5,6 @@ from matplotlib import pyplot as plt
 from neuralprophet import NeuralProphet
 from sklearn.metrics import mean_squared_error
 
-from utils import load_dataset, preprocess
-
 
 def train_model(train_data):
     # Rename columns for NeuralProphet model

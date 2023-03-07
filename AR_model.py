@@ -1,12 +1,8 @@
-import pandas as pd
-import seaborn as sns
-from matplotlib import pyplot as plt
-
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import mean_squared_error
-
 from skforecast.ForecasterAutoreg import ForecasterAutoreg
 from skforecast.model_selection import grid_search_forecaster
+
+from utils import calc_mse
 
 
 def train_model(train_data):
@@ -21,27 +17,19 @@ def train_model(train_data):
     return model
 
 
-def make_prediction(model, train_data, test_data, steps=24):
-    predictions = model.predict(steps=steps)
+def make_prediction(model, test_data, steps=24, show_stats=False):
+    # Makes prediction for 24 months time horizon based on trained model
+    y_pred = model.predict(steps=steps)
 
-    fig, ax = plt.subplots(figsize=(9, 4))
-    train_data['value'].plot(ax=ax, label='train')
-    test_data['value'][:steps].plot(ax=ax, label='test')
-    predictions.plot(ax=ax, label='predictions')
-    ax.legend()
-    plt.show()
+    if show_stats:
+        calc_mse(test_data['y'], y_pred)
 
-    error_mse = mean_squared_error(
-        y_true=test_data['value'][:steps],
-        y_pred=predictions
-    )
-
-    print(f"Test error (mse): {error_mse}")
+    return y_pred
 
 
 def hyperparameter_tuning(train_data, steps=12):
     # Hyperparameter Grid search
-    # ==============================================================================
+
     model = ForecasterAutoreg(
         regressor=RandomForestRegressor(random_state=123),
         lags=30
