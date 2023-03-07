@@ -1,6 +1,6 @@
 import AR_model
-import NP_model
 import pyaf_model
+
 from utils import save_model, load_model, load_dataset, preprocess, create_train_test_set, return_pred_value
 from data_visualization import plot_input_data, plot_predictions
 
@@ -19,6 +19,7 @@ if __name__ == "__main__":
     # Load dataset:
     data = load_dataset(dataset)
 
+    # Visualize input data
     if PLOT_INPUT_DATA:
         plot_input_data(dataset)
 
@@ -35,16 +36,13 @@ if __name__ == "__main__":
         if MODEL_NAME == "AR_model":
             model = AR_model.train_model(train_data)
 
-        elif MODEL_NAME == "NP_model":
-            model = NP_model.train_model(train_data)
-
         elif MODEL_NAME == "pyaf_model":
             model = pyaf_model.train_model(train_data)
 
         else:
             raise NotImplementedError
 
-        # Save AR model
+        # Save model as pickle file
         save_model(MODEL_NAME, model)
 
     if MAKE_PREDICTION:
@@ -54,11 +52,6 @@ if __name__ == "__main__":
         if MODEL_NAME == "AR_model":
             # Make prediction for AR model
             y_pred = AR_model.make_prediction(model, test_data)
-
-        elif MODEL_NAME == "NP_model":
-            # Make prediction for NP model
-            # TODO // Does not work yet => some weird error occuring
-            y_pred = NP_model.make_prediction(model, train_data, test_data)
 
         elif MODEL_NAME == "pyaf_model":
             y_pred = pyaf_model.make_prediction(model, test_data, show_stats=True)

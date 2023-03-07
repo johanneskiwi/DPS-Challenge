@@ -10,7 +10,6 @@ numpy = "*"
 seaborn = "*"
 scikit-learn = "*"
 skforecast = "*"
-neuralprophet = "*"
 pyaf = "*"
 
 [dev-packages]
