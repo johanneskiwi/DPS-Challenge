@@ -4,7 +4,8 @@ from utils import calc_mse
 
 
 def train_model(train_data):
-    # Fit PyAF model for forecasting
+    """Fit PyAF model for forecasting"""
+
     train_data.index.name = 'date'
 
     model = autof.cForecastEngine()
@@ -14,22 +15,15 @@ def train_model(train_data):
 
 
 def make_prediction(model, train_data, test_data, steps=24, show_stats=False):
-    # Makes prediction for 24 months time horizon based on trained model
+    """Makes prediction for 24 months time horizon based on trained model"""
+
     predictions = model.forecast(train_data, steps)
 
-    l = len(train_data['y'])
+    t_len = len(train_data['y'])
     predictions = predictions.set_index('ds', drop=False)
-    y_pred = predictions["y_Forecast"][l:l+steps]
+    y_pred = predictions["y_Forecast"][t_len:t_len+steps]
 
     if show_stats:
         calc_mse(test_data['y'], y_pred)
 
     return y_pred
-
-
-
-
-
-
-
-

@@ -7,7 +7,7 @@ from matplotlib import pyplot as plt
 
 
 def load_dataset(file):
-    # Load data into pandas dataframe
+    """Load data into pandas dataframe"""
     data = pd.read_csv(file)
 
     # Only use first 5 Categories:
@@ -17,12 +17,17 @@ def load_dataset(file):
 
 
 def create_train_test_set(data, visualize=False):
+    """
+        Creates a training and test dataset
+        Training data timeframe: [2000, 2020]
+    """
+
     # Training data only for JAHR < 2020
     train_data = data[data["ds"] <= '2019-12-01']
     test_data = data[data["ds"] > '2019-12-01']
 
-    print(f"Train dates : {train_data.index.min()} --- {train_data.index.max()}  (n={len(train_data)})")
-    print(f"Test dates  : {test_data.index.min()} --- {test_data.index.max()}  (n={len(test_data)})")
+    print(f"\nTrain dates : {train_data.index.min()} --- {train_data.index.max()}  (n={len(train_data)})")
+    print(f"Test dates  : {test_data.index.min()} --- {test_data.index.max()}  (n={len(test_data)})\n")
 
     if visualize:
         fig, ax = plt.subplots(figsize=(9, 4))
@@ -35,6 +40,10 @@ def create_train_test_set(data, visualize=False):
 
 
 def preprocess(df, horizon=2021, for_visuals=False):
+    """
+        Preprocesses Data including various feature engineering actions
+        Prepare Dataset to be fitted in model
+    """
     # Drop all rows with entry "Summe"
     df = df.drop(df[df.MONAT == "Summe"].index)
 
@@ -65,14 +74,11 @@ def preprocess(df, horizon=2021, for_visuals=False):
         df['ds'] = pd.to_datetime(df['ds'], format='%Y%m')
 
         df = sort_data(df)
-
-        # Check for missing values
-        print(f'Number of rows with missing values: {df.isnull().any(axis=1).mean()}')
-
     return df
 
 
 def sort_data(df):
+    """Sorts pandas Dataframe chronologically"""
     df = df.set_index('ds', drop=False)
     df = df.asfreq('MS')
     df = df.sort_index()
@@ -80,6 +86,8 @@ def sort_data(df):
 
 
 def save_model(filename, model):
+    """Saves trained model in pickle file"""
+
     filepath = os.path.join("saved_models", filename + ".pkl")
     with open(filepath, "wb") as f:
         pickle.dump(model, f)
@@ -88,6 +96,8 @@ def save_model(filename, model):
 
 
 def load_model(filename):
+    """Loads trained model from pickle file"""
+
     filepath = os.path.join("saved_models", filename + ".pkl")
     with open(filepath, "rb") as f:
         model = pickle.load(f)
@@ -97,7 +107,8 @@ def load_model(filename):
 
 
 def return_pred_value(y_pred, month, year):
-    # Predict single value given a specific date (year, month)
+    """Predict single value given a specific date (year, month)"""
+
     date = year + '-' + month + '-01'
     predicted_value = int(y_pred.loc[date])
 
@@ -107,6 +118,8 @@ def return_pred_value(y_pred, month, year):
 
 
 def calc_mse(y, y_pred, steps=24):
+    """Calculates MSE between ground-truth and predicted data"""
+
     error_mse = mean_squared_error(
         y_true=y,
         y_pred=y_pred

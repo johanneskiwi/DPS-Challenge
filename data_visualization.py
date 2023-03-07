@@ -7,6 +7,8 @@ LINE_PLOT = True
 
 
 def plot_input_data(file):
+    """Creates plots for input data"""
+
     labels = ["Alkoholunfälle", "Fluchtunfälle", "Verkehrsunfälle"]
     colors = ["r", "g", "y"]
 
@@ -50,7 +52,8 @@ def plot_input_data(file):
 
 
 def plot_predictions(train_data, test_data, pred_data, steps=24):
-    # Plot prediction horizon compared with test data
+    """Plot prediction horizon compared with test data"""
+
     fig, ax = plt.subplots(figsize=(9, 4))
     train_data['y'].plot(ax=ax, label='train')
     test_data['y'][:steps].plot(ax=ax, label='test')
