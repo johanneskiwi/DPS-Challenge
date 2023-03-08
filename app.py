@@ -60,5 +60,3 @@ if __name__ == '__main__':
     load_model()  # load model at the beginning once only
     load_train_data()   # load training data at the beginning once only
     app.run(host='0.0.0.0', port=80)
-
-#curl.exe -X POST -H "Content-type: application/json" -d "{""year"": ""2021"", ""month"": ""12""}" "localhost:5000/predict"
