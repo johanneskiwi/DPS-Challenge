@@ -36,17 +36,24 @@ def get_prediction():
         year = usr_inp["year"]
         month = usr_inp["month"]
 
-        # Make prediction
-        predictions = model.forecast(iInputDS=train_data, iHorizon=24)
-        t_len = len(train_data['y'])
-        predictions = predictions.set_index('ds', drop=False)
-        y_pred = predictions["y_Forecast"][t_len:t_len + 24]
+        if year < 2020 or year > 2021:
+            return "Error: Year must be in range [2020, 2021]"
+        
+        if month > 12:
+            return "Error: Month must be in range [1, 12]"
+        
+        else:
+            # Make prediction
+            predictions = model.forecast(iInputDS=train_data, iHorizon=24)
+            t_len = len(train_data['y'])
+            predictions = predictions.set_index('ds', drop=False)
+            y_pred = predictions["y_Forecast"][t_len:t_len + 24]
 
-        # Get predicted value
-        date = year + '-' + month + '-01'
-        predicted_value = int(y_pred.loc[date])
+            # Get predicted value
+            date = str(year) + '-' + str(month) + '-01'
+            predicted_value = int(y_pred.loc[date])
 
-    return jsonify(prediction=predicted_value)
+            return jsonify(prediction=predicted_value)
 
 
 if __name__ == '__main__':
