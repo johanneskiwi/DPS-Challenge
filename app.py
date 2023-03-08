@@ -10,7 +10,7 @@ app = Flask(__name__)
 def load_model():
     global model
 
-    with open(r'pickle_files/model.pkl', 'rb') as f:
+    with open(r'pickle_files/pyaf_model.pkl', 'rb') as f:
         model = pickle.load(f)
 
 
@@ -52,4 +52,6 @@ def get_prediction():
 if __name__ == '__main__':
     load_model()  # load model at the beginning once only
     load_train_data()   # load training data at the beginning once only
-    app.run(host='localhost', port=5000)
+    app.run(host='0.0.0.0', port=5000)
+
+#curl.exe -X POST -H "Content-type: application/json" -d "{""year"": ""2021"", ""month"": ""12""}" "localhost:5000/predict"
